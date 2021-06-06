@@ -1,0 +1,10 @@
+g812-2_mppt-v1.1.4_keil_vv1\mbutils.o: FreeModbus\mbutils.c
+g812-2_mppt-v1.1.4_keil_vv1\mbutils.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+g812-2_mppt-v1.1.4_keil_vv1\mbutils.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+g812-2_mppt-v1.1.4_keil_vv1\mbutils.o: FreeModbus\port.h
+g812-2_mppt-v1.1.4_keil_vv1\mbutils.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\assert.h
+g812-2_mppt-v1.1.4_keil_vv1\mbutils.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
+g812-2_mppt-v1.1.4_keil_vv1\mbutils.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+g812-2_mppt-v1.1.4_keil_vv1\mbutils.o: FreeModbus\mb.h
+g812-2_mppt-v1.1.4_keil_vv1\mbutils.o: FreeModbus\mbport.h
+g812-2_mppt-v1.1.4_keil_vv1\mbutils.o: FreeModbus\mbproto.h
