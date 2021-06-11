@@ -38,6 +38,37 @@
 #include "bsp.h"
 
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim6;
+
+HAL_StatusTypeDef initStat;
+void MX_TIM6_Init(void)
+{
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+//  TIM_OC_InitTypeDef sConfigOC;
+
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 0xFFFF;	//65535
+  htim6.Init.Period = 0xFFFF;	
+  htim6.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  initStat=HAL_TIM_Base_Init(&htim6);
+
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  HAL_TIM_ConfigClockSource(&htim6, &sClockSourceConfig);
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig);
+	
+	HAL_NVIC_SetPriority(TIM6_DAC1_IRQn, 2, 0);
+  HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
+
+//  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+//  sConfigOC.Pulse = 0;
+//  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+//  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+//  HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
+}
 
 /* TIM3 initialize function */
 void MX_TIM3_Init(void)

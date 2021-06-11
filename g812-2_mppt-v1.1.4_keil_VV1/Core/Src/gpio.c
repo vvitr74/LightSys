@@ -38,7 +38,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "gpio.h"
-#include "config.h"
+//#include "config.h"
 /*----------------------------------------------------------------------------*/
 /* Configure GPIO                                                             */
 /*----------------------------------------------------------------------------*/
@@ -101,7 +101,7 @@ void MX_GPIO_Init(void)
   /* Shared ports between system debug and LEDs */
   GPIO_InitStruct.Pin =
 #ifndef DEBUG
-		  	  	  	  GPIO_PIN_13|GPIO_PIN_14|
+//		  	  	  	  GPIO_PIN_13|GPIO_PIN_14|
 #endif
 					  GPIO_PIN_15;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);

@@ -136,11 +136,11 @@ BOOL xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBPar
 //			USART1->CR1 &= ~USART_CR1_PS;
 //			break;
 //	}
-	USART1->CR2 &= USART_CR2_STOP_Msk; //????????
+//	USART1->CR2 &= USART_CR2_STOP_Msk; //????????
 
 //  USART1->CR1|= USART_CR1_TE | USART_CR1_RE; 	
 	
-	NVIC_SetPriority( USART1_IRQn, 7 );
+	NVIC_SetPriority( USART1_IRQn, 1 );
 	NVIC_EnableIRQ( USART1_IRQn );
 //	USART1->CR1 |= USART_CR1_UE;
 

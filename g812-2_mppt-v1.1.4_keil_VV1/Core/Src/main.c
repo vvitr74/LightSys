@@ -48,6 +48,9 @@
 #include "usart.h"
 #include "mb.h"
 #include "mbport.h"
+#include "conf_struct.h"
+#include "pb_charger.h"
+#include "tim.h"
 
 // Understand without comments
 #define SYS_I_WATCHDOG_TIMEOUT		5/1	/*s*/
@@ -83,22 +86,25 @@
 #define LOAD_CONNECTED		(BSP_ELC_State() == LOAD_STATE_CONNECTED)
 #define POWER_LIMITATION	(PowerLimitation != 0)
 #define POWER_OPTIMIZE		(PowerLimitation == 0)
-#define BATTAREY_ONCHARGE	(IbatConversion > FBC_VALUE2ADC(FBC_BATTERY_CUTOFF_CURRENT, \
+#define BATTAREY_ONCHARGE	(IbatConversion > FBC_VALUE2ADC(FBC_LI_BATTERY_CUTOFF_CURRENT, \
 											  FBC_BATTERY_CURRENT_RATIO) + \
-											  FBC_VALUE2ADC(FBC_BATTERY_THRESHOLD_CURRENT, \
+											  FBC_VALUE2ADC(FBC_LI_BATTERY_THRESHOLD_CURRENT, \
 											  FBC_BATTERY_CURRENT_RATIO))
-#define BATTAREY_CHARGED	(IbatConversion < FBC_VALUE2ADC(FBC_BATTERY_CUTOFF_CURRENT, \
+#define BATTAREY_CHARGED	(IbatConversion < FBC_VALUE2ADC(FBC_LI_BATTERY_CUTOFF_CURRENT, \
 											  FBC_BATTERY_CURRENT_RATIO) - \
-											  FBC_VALUE2ADC(FBC_BATTERY_THRESHOLD_CURRENT, \
+											  FBC_VALUE2ADC(FBC_LI_BATTERY_THRESHOLD_CURRENT, \
 											  FBC_BATTERY_CURRENT_RATIO))
-#define BATTERY_DISCHARGED  (VbatConversion < FBC_VALUE2ADC(FBC_BATTERY_REDUCE_VOLTAGE, \
+#define BATTERY_DISCHARGED  (VbatConversion < FBC_VALUE2ADC(FBC_LI_BATTERY_CUTOFF_VOLTAGE, \
 											  FBC_BATTERY_VOLTAGE_RATIO) - \
-											  FBC_VALUE2ADC(FBC_BATTERY_THRESHOLD_VOLTAGE / 2, \
+											  FBC_VALUE2ADC(FBC_LI_BATTERY_THRESHOLD_VOLTAGE / 2, \
 											  FBC_BATTERY_VOLTAGE_RATIO))
-#define BATTERY_UNDERCHARGED (VbatConversion > FBC_VALUE2ADC(FBC_BATTERY_REDUCE_VOLTAGE, \
+#define BATTERY_UNDERCHARGED (VbatConversion > FBC_VALUE2ADC(FBC_LI_BATTERY_CUTOFF_VOLTAGE, \
 											  FBC_BATTERY_VOLTAGE_RATIO) + \
-											  FBC_VALUE2ADC(FBC_BATTERY_THRESHOLD_VOLTAGE / 2, \
+											  FBC_VALUE2ADC(FBC_LI_BATTERY_THRESHOLD_VOLTAGE / 2, \
 											  FBC_BATTERY_VOLTAGE_RATIO))
+												
+//#define PB_BATTERY_DEFECT (VbatConversion < FBC_VALUE2ADC(FBC_PB_BATTERY_MIN_VOLTAGE, \
+//											  FBC_BATTERY_VOLTAGE_RATIO))
 
 // Actions
 #define DISABLE_LIGHTING	BSP_LDC_SetState(DIM_STATE_EXTINGUISHED)
@@ -108,9 +114,9 @@
 #define STARTUP_CHARGER		BSP_FBC_SetState(FBC_STATE_WORKING)
 #define DISCONNECT_LOAD		BSP_ELC_SetState(LOAD_STATE_DISCONNECTED)
 #define CONNECT_LOAD		BSP_ELC_SetState(LOAD_STATE_CONNECTED)
-#define LOW_CHARGE_CURRENT  {BatCurrentLimit = FBC_VALUE2ADC(FBC_BATTERY_REDUCE_CURRENT, \
+#define LOW_CHARGE_CURRENT  {BatCurrentLimit = FBC_VALUE2ADC(FBC_LI_BATTERY_REDUCE_CURRENT, \
 											   FBC_BATTERY_CURRENT_RATIO);}
-#define HIGH_CHARGE_CURRENT  {BatCurrentLimit = FBC_VALUE2ADC(FBC_BATTERY_CHARGE_CURRENT, \
+#define HIGH_CHARGE_CURRENT  {BatCurrentLimit = FBC_VALUE2ADC(FBC_LI_BATTERY_CHARGE_CURRENT, \
 											   FBC_BATTERY_CURRENT_RATIO);}
 
 void SystemClock_Config(void);
@@ -123,6 +129,7 @@ void BSP_ExecuteLEDshow(void);
 void BSP_ExecuteCeremonial(void);
 void BSP_ExecuteReadBMS(void);
 void BSP_ExecuteWatchdogs(void);
+void pbChargerFSM(void);
 
 uint32_t LongTime(void);
 uint32_t ROM_CRC32_code(void);
@@ -130,6 +137,8 @@ uint32_t ROM_CRC32_data(void);
 BOOLEAN ROM_CRC32_Assigned(void);
 BOOLEAN ROM_Integrity(void);
 static BOOLEAN SunlightTrigger(void);
+												 								 
+uint8_t pbChargerEn=1;	 
 
 /**************************************************************************************
  * Special uninitialized segment used to storage state in stage reset
@@ -177,7 +186,7 @@ int main(void)
 
   MX_CRC_Init();
 
-//  if (!ROM_Integrity())	BSP_Reset(); VV 28.05.21 todo eliminate freeze
+//  if (!ROM_Integrity())	BSP_Reset(); //VV 28.05.21 todo eliminate freeze
 
   /* If PowerOn initialize damaged values in memory*/
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_PORRST)
@@ -265,11 +274,16 @@ int main(void)
   {
 	  BSP_ExecuteControl();
 	  BSP_ExecuteLEDshow();
-	  BSP_ExecuteReadBMS();
-	  BSP_EcecuteDisplay();
+		if(pbChargerEn==0){
+			BSP_ExecuteReadBMS();
+		}
+		else{
+			pbChargerFSM();
+		}
+//	  BSP_EcecuteDisplay();
 	  BSP_ExecuteCeremonial();
-	  BSP_ExecuteWatchdogs();
-		eMBPoll();
+//	  BSP_ExecuteWatchdogs();
+//		eMBPoll();
   }
 }
 /*-------------------------------END MAIN---------------------------------------*/
@@ -291,9 +305,10 @@ void BSP_ExecuteControl(void)
     if (LIGHTING_ENABLED  && LOAD_DISCONNECTED)	CONNECT_LOAD;
     if (LIGHTING_DISABLED && LOAD_CONNECTED)	DISCONNECT_LOAD;
 // Battery two stage charging for Li-Ion
-    if (BATTERY_DISCHARGED)		LOW_CHARGE_CURRENT;
-    if (BATTERY_UNDERCHARGED)	HIGH_CHARGE_CURRENT;
-    //...
+		if(pbChargerEn==0){
+			if (BATTERY_DISCHARGED)		LOW_CHARGE_CURRENT;
+			if (BATTERY_UNDERCHARGED)	HIGH_CHARGE_CURRENT;
+		}
 }
 
 void BSP_ExecuteLEDshow(void)
@@ -356,14 +371,13 @@ void BSP_EcecuteDisplay(void)
 	}
 }
 
-
 void BSP_ExecuteCeremonial(void)
 {
 	uint32_t time = LongTime();
-	static uint8_t last_interval = LIGHTING_CEREMONIAL_STEPS;
+	static uint8_t last_interval = LIGHTING_CEREMONIAL_STEPS; 
 
 	for (uint8_t i = 0; i < LIGHTING_CEREMONIAL_STEPS; i++)
-	  if (Ceremonial[i].time > time)
+	  if (Ceremonial[i].time > time)	//todo min->ms
 	  { // Reset lighting intensity if interval changed
 		  if (i!=last_interval)
 		  {
@@ -375,7 +389,7 @@ void BSP_ExecuteCeremonial(void)
 		  return;
 	  }
 	if (last_interval == LIGHTING_CEREMONIAL_STEPS) return;
-	  // Default values from config.h
+	  // Default values from conf_struct.h
 	 AlightStateLevel = BSP_LIGHTING_ALIGHT;
 	 DimmedStateLevel = BSP_LIGHTING_DIMMED;
 	 BSP_LDC_SetState(BSP_LDC_State());
@@ -392,6 +406,79 @@ void BSP_ExecuteWatchdogs(void)
 {
 //...Simplest way
 	HAL_IWDG_Refresh(&hiwdg);
+}
+
+enum chStates{
+	Initialization=1,
+	Bulk,
+	Absorption,
+	Equalization,
+	Float
+};				
+static uint8_t currentState=Initialization;	
+extern TIM_HandleTypeDef htim6;
+extern uint16_t minutesCnt;
+
+void pbChargerFSM(void)
+{
+	switch(currentState){
+		case Initialization:
+			if(VbatConversion < FBC_VALUE2ADC(FBC_PB_BATTERY_MIN_VOLTAGE,FBC_BATTERY_VOLTAGE_RATIO))
+				break;
+			else
+				currentState=Bulk;
+			break;
+		case Bulk:
+			BatCurrentLimit = FBC_VALUE2ADC(FBC_PB_BATTERY_BULK_CURRENT,FBC_BATTERY_CURRENT_RATIO);
+			HAL_TIM_Base_Start(&htim6);
+			if(minutesCnt>=FBC_PB_BULK_TIMEOUT){
+				HAL_TIM_Base_Stop(&htim6);
+				minutesCnt=0;
+				currentState=Initialization;
+				return;
+			}
+//			if(VbatConversion>=FBC_VALUE2ADC(FBC_PB_BATTERY_MAX_VOLTAGE,FBC_BATTERY_VOLTAGE_RATIO)){
+//				HAL_TIM_Base_Stop(&htim6);
+//				minutesCnt=0;
+//				currentState=Absorption;
+//				return;
+//			}
+			break;
+		case Absorption:
+			BatVoltageLimit=FBC_VALUE2ADC(FBC_PB_BATTERY_ABSORPTION_VOLTAGE,FBC_BATTERY_CURRENT_RATIO);
+			HAL_TIM_Base_Start(&htim6);
+			if(minutesCnt>=FBC_PB_ABSORPTION_TIMEOUT){
+				HAL_TIM_Base_Stop(&htim6);
+				minutesCnt=0;
+				currentState=Equalization;
+				return;
+			}
+			if(IbatConversion>=FBC_VALUE2ADC(FBC_PB_BATTERY_ABSORPTION_MIN_CURRENT,FBC_BATTERY_VOLTAGE_RATIO)){
+				HAL_TIM_Base_Stop(&htim6);
+				minutesCnt=0;
+				currentState=Float;
+				return;
+			}
+			break;
+		case Equalization:
+			BatVoltageLimit=FBC_VALUE2ADC(FBC_PB_BATTERY_EQUALIZATION_VOLTAGE,FBC_BATTERY_CURRENT_RATIO);
+			BatCurrentLimit = FBC_VALUE2ADC(FBC_PB_BATTERY_EQUALIZATION_CURRENT,FBC_BATTERY_CURRENT_RATIO);
+			HAL_TIM_Base_Start(&htim6);
+			if(minutesCnt>=FBC_PB_EQUALIZATION_TIMEOUT){
+				HAL_TIM_Base_Stop(&htim6);
+				minutesCnt=0;
+				currentState=Float;
+				return;
+			}
+			break;
+		case Float:
+			BatVoltageLimit=FBC_VALUE2ADC(FBC_PB_BATTERY_EQUALIZATION_VOLTAGE,FBC_BATTERY_CURRENT_RATIO);
+			if(VbatConversion<FBC_VALUE2ADC(FBC_PB_BATTERY_FLOAT_REDUCE_VOLTAGE,FBC_BATTERY_VOLTAGE_RATIO))\
+				currentState=Bulk;
+			break;
+		default:
+			break;
+	}
 }
 
 /******************************************************************************************/
@@ -507,6 +594,8 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
+	
+#define USE_HSE_RESONATOR
 
 #ifdef USE_HSE_RESONATOR
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;

@@ -44,7 +44,7 @@ g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/gpio.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/tim.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/ssd1306.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/bsp.h
-g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/config.h
+g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/conf_struct.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/smbus.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/print.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/usart.h
@@ -55,3 +55,4 @@ g812-2_mppt-v1.1.4_keil_vv1\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\assert.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: .\FreeModbus\mbport.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: .\FreeModbus\mbproto.h
+g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/pb_charger.h

@@ -40,5 +40,5 @@ g812-2_mppt-v1.1.4_keil_vv1\stm32f3xx_it.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/
 g812-2_mppt-v1.1.4_keil_vv1\stm32f3xx_it.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h
 g812-2_mppt-v1.1.4_keil_vv1\stm32f3xx_it.o: ../Core/Inc/stm32f3xx_it.h
 g812-2_mppt-v1.1.4_keil_vv1\stm32f3xx_it.o: ../Core/Inc/bsp.h
-g812-2_mppt-v1.1.4_keil_vv1\stm32f3xx_it.o: ../Core/Inc/config.h
+g812-2_mppt-v1.1.4_keil_vv1\stm32f3xx_it.o: ../Core/Inc/conf_struct.h
 g812-2_mppt-v1.1.4_keil_vv1\stm32f3xx_it.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

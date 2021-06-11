@@ -61,6 +61,7 @@ extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern HRTIM_HandleTypeDef hhrtim1;
 extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim6;
 extern SMBUS_HandleTypeDef hsmbus1;
 
 /******************************************************************************/
@@ -144,14 +145,17 @@ void HRTIM1_Master_IRQHandler(void)
 	else
 	{
 	/* Begin of critical section, disable preemption */
-	__disable_fault_irq();
+//	__disable_fault_irq();	//VV 09.06.21
+	__disable_irq();
 	vpan = VpanConversion;    vbat = VbatConversion;
 	ipan = IpanConversion;    ibat = IbatConversion;
 #ifdef USE_ADDITIONAL_VOLTAGE_REFERENCE
 	ref1 = Ref1Conversion;    ref2 = Ref2Conversion;
 #endif
 	/* End of critical section, enable preemption*/
-	__enable_fault_irq();
+//	__enable_fault_irq();	//VV 09.06.21
+	__enable_irq();
+
 
 	// MPPT optimization
 	optimizetime++;
@@ -271,6 +275,14 @@ void EXTI9_5_IRQHandler(void)
 void TIM3_IRQHandler(void)
 {
    HAL_TIM_IRQHandler(&htim3);
+}
+
+uint16_t minutesCnt;
+
+void TIM6_DAC1_IRQHandler(void)
+{
+  minutesCnt++;
+	HAL_TIM_IRQHandler(&htim6);
 }
 
 

@@ -43,4 +43,5 @@ g812-2_mppt-v1.1.4_keil_vv1\bsp.o: ../Core/Inc/hrtim.h
 g812-2_mppt-v1.1.4_keil_vv1\bsp.o: ../Core/Inc/tim.h
 g812-2_mppt-v1.1.4_keil_vv1\bsp.o: ../Core/Inc/gpio.h
 g812-2_mppt-v1.1.4_keil_vv1\bsp.o: ../Core/Inc/bsp.h
-g812-2_mppt-v1.1.4_keil_vv1\bsp.o: ../Core/Inc/config.h
+g812-2_mppt-v1.1.4_keil_vv1\bsp.o: ../Core/Inc/conf_struct.h
+g812-2_mppt-v1.1.4_keil_vv1\bsp.o: ../Core/Inc/pb_charger.h

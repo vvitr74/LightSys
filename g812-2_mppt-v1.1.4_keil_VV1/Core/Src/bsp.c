@@ -17,6 +17,9 @@
 #include "tim.h"
 #include "gpio.h"
 #include "bsp.h"
+#include "pb_charger.h"
+
+//const uint16_t conf[50];
 
 #ifdef  NUCLEO_F334R8
 #define COMMON_LED1_PORT	GPIOA
@@ -26,13 +29,18 @@
 #define COMMON_LED1_PIN		GPIO_PIN_4
 #endif
 
+
 /* Target assignments (0..4095) in ADC units */
-volatile  uint16_t BatCurrentLimit = FBC_VALUE2ADC(
-									  FBC_BATTERY_CHARGE_CURRENT,
-									  FBC_BATTERY_CURRENT_RATIO);
-volatile  uint16_t BatVoltageLimit= FBC_VALUE2ADC(
-		  	  	  	  	  	  	  	 FBC_BATTERY_CHARGE_VOLTAGE,
-									 FBC_BATTERY_VOLTAGE_RATIO);
+//volatile  uint16_t BatCurrentLimit = FBC_VALUE2ADC(
+//									  FBC_LI_BATTERY_CHARGE_CURRENT,
+//									  FBC_BATTERY_CURRENT_RATIO);
+//volatile  uint16_t BatVoltageLimit= FBC_VALUE2ADC(
+//		  	  	  	  	 FBC_LI_BATTERY_CHARGE_VOLTAGE,
+//									 FBC_BATTERY_VOLTAGE_RATIO);
+
+volatile  uint16_t BatCurrentLimit=0;
+volatile  uint16_t BatVoltageLimit=0;
+
 
 /* Junction ADC conversion result buffers (0..4095) */
 volatile  uint16_t Ref1Conversion = 0;
@@ -75,6 +83,7 @@ static volatile uint16_t presencefiltered=0;
 /* Timers for waiting end of transient process */
 extern volatile  uint32_t StoppingTimeout;
 
+
 void BSP_Init(void)
 {
 	MX_GPIO_Init();
@@ -82,6 +91,7 @@ void BSP_Init(void)
 	MX_ADC2_Init();
 	MX_HRTIM1_Init();
 	MX_TIM3_Init();
+	MX_TIM6_Init();
 	HAL_ADCEx_Calibration_Start(&hadc2,ADC_SINGLE_ENDED);
     HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
     HAL_ADCEx_Calibration_Start(&hadc2,ADC_DIFFERENTIAL_ENDED);
@@ -325,12 +335,14 @@ void BSP_FBC_SetDutyCycles(void)
               FBC_BUCKBOOST_WIDTH(100) - FBC_CONVERSION_WIDTH;
 
     /* Begin of critical section, disable preemption */
-     __disable_fault_irq();
+//     __disable_fault_irq(); //VV 09.06.21
+		__disable_irq();
      hhrtim1.Instance->sMasterRegs.MCMP1R = adcpos;
      hhrtim1.Instance->sTimerxRegs[HRTIM_TIMERINDEX_TIMER_A].CMP1xR = buck;
      hhrtim1.Instance->sTimerxRegs[HRTIM_TIMERINDEX_TIMER_C].CMP1xR = boost;
      /* End of critical section, enable preemption*/
-     __enable_fault_irq();
+//     __enable_fault_irq();	//VV 09.06.21
+		__enable_irq();
 }
 
 

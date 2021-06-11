@@ -15,7 +15,9 @@
 #define BSP_H_
 
 #include "stm32f3xx_hal.h"
-#include "config.h"
+//#include "config.h"
+#include "conf_struct.h"
+
 
 #ifdef NUCLEO_F334R8
 #undef USE_HSE_RESONATOR

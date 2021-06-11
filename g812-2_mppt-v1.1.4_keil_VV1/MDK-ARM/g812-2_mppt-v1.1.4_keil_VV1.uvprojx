@@ -453,9 +453,9 @@
               <FilePath>..\Core\Src\print.c</FilePath>
             </File>
             <File>
-              <FileName>config.c</FileName>
+              <FileName>conf_sruct.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\Src\config.c</FilePath>
+              <FilePath>..\Core\Src\conf_sruct.c</FilePath>
             </File>
           </Files>
         </Group>

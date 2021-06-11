@@ -56,6 +56,8 @@ void MX_TIM3_Init(void);
 /* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */
+extern TIM_HandleTypeDef htim6;
+void MX_TIM6_Init(void);
 
 #ifdef __cplusplus
 }

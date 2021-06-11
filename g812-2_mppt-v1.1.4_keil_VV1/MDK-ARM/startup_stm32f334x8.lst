@@ -548,11 +548,11 @@ ARM Macro Assembler    Page 9
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=g812-2_mppt-v1.1.4_keil_vv1\startup_stm32f334x8.d -og812-2_mppt
 -v1.1.4_keil_vv1\startup_stm32f334x8.o -I.\RTE\_g812-2_mppt-v1.1.4_keil_VV1 -IC
-:\Users\vvitr\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include -IC:\U
-sers\vvitr\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Devic
-e\ST\STM32F3xx\Include --predefine="__MICROLIB SETA 1" --predefine="__UVISION_V
-ERSION SETA 528" --predefine="_RTE_ SETA 1" --predefine="STM32F334x8 SETA 1" --
-list=startup_stm32f334x8.lst startup_stm32f334x8.s
+:\Users\i\AppData\Local\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\Core\Include -IC:\Users
+\i\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM
+32F3xx\Include --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION S
+ETA 528" --predefine="_RTE_ SETA 1" --predefine="STM32F334x8 SETA 1" --list=sta
+rtup_stm32f334x8.lst startup_stm32f334x8.s
 
 
 
