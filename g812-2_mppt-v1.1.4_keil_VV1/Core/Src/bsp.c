@@ -29,17 +29,22 @@
 #define COMMON_LED1_PIN		GPIO_PIN_4
 #endif
 
+#define PB
 
 /* Target assignments (0..4095) in ADC units */
-//volatile  uint16_t BatCurrentLimit = FBC_VALUE2ADC(
-//									  FBC_LI_BATTERY_CHARGE_CURRENT,
-//									  FBC_BATTERY_CURRENT_RATIO);
-//volatile  uint16_t BatVoltageLimit= FBC_VALUE2ADC(
-//		  	  	  	  	 FBC_LI_BATTERY_CHARGE_VOLTAGE,
-//									 FBC_BATTERY_VOLTAGE_RATIO);
+volatile  uint16_t BatCurrentLimit = 
+#ifdef PB
+FBC_VALUE2ADC(FBC_PB_BATTERY_BULK_CURRENT,FBC_BATTERY_CURRENT_RATIO);
+#else
+FBC_VALUE2ADC(FBC_LI_BATTERY_CHARGE_CURRENT,FBC_BATTERY_CURRENT_RATIO);
+#endif
 
-volatile  uint16_t BatCurrentLimit=0;
-volatile  uint16_t BatVoltageLimit=0;
+volatile  uint16_t BatVoltageLimit= 
+#ifdef PB	
+FBC_VALUE2ADC(FBC_PB_BATTERY_MAX_VOLTAGE,FBC_BATTERY_VOLTAGE_RATIO);
+#else
+FBC_VALUE2ADC(FBC_LI_BATTERY_CHARGE_VOLTAGE,FBC_BATTERY_VOLTAGE_RATIO);
+#endif
 
 
 /* Junction ADC conversion result buffers (0..4095) */
@@ -98,7 +103,7 @@ void BSP_Init(void)
     HAL_ADCEx_Calibration_Start(&hadc1,ADC_DIFFERENTIAL_ENDED);
 	HAL_ADCEx_InjectedStart_IT(&hadc2);
 	HAL_ADCEx_InjectedStart_IT(&hadc1);
-	HAL_HRTIM_WaveformCounterStart_IT(&hhrtim1,HRTIM_TIMERID_MASTER|
+	HAL_HRTIM_WaveformCounterStart_IT(&hhrtim1,HRTIM_TIMERID_MASTER|	//start HRTIM MASTER, A, C in waveform mode whith interups
 				     HRTIM_TIMERID_TIMER_A|HRTIM_TIMERID_TIMER_C);
 	HAL_TIM_PWM_Start_IT(&htim3,TIM_CHANNEL_1);
 }
@@ -289,11 +294,11 @@ BSP_FBCState_TypeDef  BSP_FBC_State(void)
 
 
 /* Calculation duty cycle parameters */
-#define DELTA   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DELTA)
-#define DUTY1   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DUTY1)
-#define DUTY2   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DUTY2)
-#define ONE     FBC_BUCKBOOST_PERIOD
-#define SCALE   FBC_FRACTIONS_SCALE
+#define DELTA   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DELTA)	//209454,545454545*(5/100)=10472,7272727273=0x28E8
+#define DUTY1   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DUTY1)	//209454,545454545*(80/100)=167563,636363636=0x028E8B
+#define DUTY2   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DUTY2)	//209454,545454545*(50/100)=104727,272727273=0x019917
+#define ONE     FBC_BUCKBOOST_PERIOD													//209454,545454545=0x03322E
+#define SCALE   FBC_FRACTIONS_SCALE														//10000=0x2710
 
 void BSP_FBC_CutGearNumber(void)
 { // Range limitation

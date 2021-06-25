@@ -39,6 +39,8 @@ g812-2_mppt-v1.1.4_keil_vv1\tim.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx
 g812-2_mppt-v1.1.4_keil_vv1\tim.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h
 g812-2_mppt-v1.1.4_keil_vv1\tim.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h
 g812-2_mppt-v1.1.4_keil_vv1\tim.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h
+g812-2_mppt-v1.1.4_keil_vv1\tim.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_usart.h
+g812-2_mppt-v1.1.4_keil_vv1\tim.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_usart_ex.h
 g812-2_mppt-v1.1.4_keil_vv1\tim.o: ../Core/Inc/gpio.h
 g812-2_mppt-v1.1.4_keil_vv1\tim.o: ../Core/Inc/bsp.h
 g812-2_mppt-v1.1.4_keil_vv1\tim.o: ../Core/Inc/conf_struct.h

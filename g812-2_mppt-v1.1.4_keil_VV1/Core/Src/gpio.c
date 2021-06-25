@@ -38,7 +38,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "gpio.h"
-//#include "config.h"
+#include "config.h"
 /*----------------------------------------------------------------------------*/
 /* Configure GPIO                                                             */
 /*----------------------------------------------------------------------------*/
@@ -106,7 +106,7 @@ void MX_GPIO_Init(void)
 					  GPIO_PIN_15;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin =
+  GPIO_InitStruct.Pin = 
 #ifndef DEBUG
 		  	  	  	  GPIO_PIN_3|
 #endif

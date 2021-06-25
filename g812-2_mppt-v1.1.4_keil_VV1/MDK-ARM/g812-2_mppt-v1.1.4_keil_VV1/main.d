@@ -38,6 +38,8 @@ g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3x
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h
+g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_usart.h
+g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_usart_ex.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/adc.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/hrtim.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/gpio.h
@@ -47,12 +49,3 @@ g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/bsp.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/conf_struct.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/smbus.h
 g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/print.h
-g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/usart.h
-g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/main.h
-g812-2_mppt-v1.1.4_keil_vv1\main.o: .\FreeModbus\mb.h
-g812-2_mppt-v1.1.4_keil_vv1\main.o: .\FreeModbus\port.h
-g812-2_mppt-v1.1.4_keil_vv1\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\assert.h
-g812-2_mppt-v1.1.4_keil_vv1\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
-g812-2_mppt-v1.1.4_keil_vv1\main.o: .\FreeModbus\mbport.h
-g812-2_mppt-v1.1.4_keil_vv1\main.o: .\FreeModbus\mbproto.h
-g812-2_mppt-v1.1.4_keil_vv1\main.o: ../Core/Inc/pb_charger.h

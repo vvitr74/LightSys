@@ -36,7 +36,8 @@
   */
 
 #include "stm32f3xx_hal.h"
-#include "stm32f3xx_hal_iwdg.h"
+//#include "stm32f3xx_hal_iwdg.h"
+//#include "stm32f3xx_hal_crc.h"
 #include "adc.h"
 #include "hrtim.h"
 #include "gpio.h"
@@ -45,12 +46,11 @@
 #include "bsp.h"
 #include "smbus.h"
 #include "print.h"
-#include "usart.h"
-#include "mb.h"
-#include "mbport.h"
-#include "conf_struct.h"
-#include "pb_charger.h"
-#include "tim.h"
+//#include "usart.h"
+//#include "mb.h"
+//#include "mbport.h"
+//#include "conf_struct.h"
+//#include "pb_charger.h"
 
 // Understand without comments
 #define SYS_I_WATCHDOG_TIMEOUT		5/1	/*s*/
@@ -63,7 +63,7 @@
 // Helpers
 #define BOOLEAN		uint8_t
 #define FALSE		0
-//#define TRUE		!FALSE //VV 28.05.21
+#define TRUE		!FALSE
 
 // Predicates
 #define MORNING_DETECTED	  SunlightTrigger()
@@ -103,8 +103,8 @@
 											  FBC_VALUE2ADC(FBC_LI_BATTERY_THRESHOLD_VOLTAGE / 2, \
 											  FBC_BATTERY_VOLTAGE_RATIO))
 												
-//#define PB_BATTERY_DEFECT (VbatConversion < FBC_VALUE2ADC(FBC_PB_BATTERY_MIN_VOLTAGE, \
-//											  FBC_BATTERY_VOLTAGE_RATIO))
+
+
 
 // Actions
 #define DISABLE_LIGHTING	BSP_LDC_SetState(DIM_STATE_EXTINGUISHED)
@@ -138,7 +138,8 @@ BOOLEAN ROM_CRC32_Assigned(void);
 BOOLEAN ROM_Integrity(void);
 static BOOLEAN SunlightTrigger(void);
 												 								 
-uint8_t pbChargerEn=1;	 
+uint8_t pbChargerEn=1;	
+BSP_FBCState_TypeDef ch_state;
 
 /**************************************************************************************
  * Special uninitialized segment used to storage state in stage reset
@@ -175,7 +176,7 @@ int main(void)
 {
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-  MX_IWDG_Init();
+//  MX_IWDG_Init();
 //  HAL_IWDG_Start(&hiwdg);
 //  HAL_IWDG_Refresh(&hiwdg);
 
@@ -184,96 +185,97 @@ int main(void)
  /* Configure the system clock */
   SystemClock_Config();
 
-  MX_CRC_Init();
+//  MX_CRC_Init();
 
 //  if (!ROM_Integrity())	BSP_Reset(); //VV 28.05.21 todo eliminate freeze
 
   /* If PowerOn initialize damaged values in memory*/
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_PORRST)
-	||__HAL_RCC_GET_FLAG(RCC_FLAG_LPWRRST))
-  {
-	  udata_LongTimeCounter = 0;
-	  udata_LightingState = DIM_STATE_EXTINGUISHED;
-	  udata_SunlightTrigger = TRUE;
-	  udata_BatteryTrigger = BAT_STATE_UNDERCHARGED;
-	  udata_ExtLoadState = LOAD_STATE_DISCONNECTED;
+//  if (__HAL_RCC_GET_FLAG(RCC_FLAG_PORRST)
+//	||__HAL_RCC_GET_FLAG(RCC_FLAG_LPWRRST))
+//  {
+//	  udata_LongTimeCounter = 0;
+//	  udata_LightingState = DIM_STATE_EXTINGUISHED;
+//	  udata_SunlightTrigger = TRUE;
+//	  udata_BatteryTrigger = BAT_STATE_UNDERCHARGED;
+//	  udata_ExtLoadState = LOAD_STATE_DISCONNECTED;
 
-// Reset statistics
-	  udata_TemperatureResets = 0;
-	  udata_OvervoltageResets = 0;
-	  udata_OvercarrentResets = 0;
-	  udata_PowergoodResets   = 0;
-	  udata_WatchdogResets    = 0;
-	  udata_ExternalResets    = 0;
-  }
+//// Reset statistics
+//	  udata_TemperatureResets = 0;
+//	  udata_OvervoltageResets = 0;
+//	  udata_OvercarrentResets = 0;
+//	  udata_PowergoodResets   = 0;
+//	  udata_WatchdogResets    = 0;
+//	  udata_ExternalResets    = 0;
+//  }
 
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST)) udata_WatchdogResets++;
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST)) udata_ExternalResets++;
+//  if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST)) udata_WatchdogResets++;
+//  if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST)) udata_ExternalResets++;
 
-  __HAL_RCC_CLEAR_RESET_FLAGS();
+//  __HAL_RCC_CLEAR_RESET_FLAGS();
 
   /* Initialize all configured peripherals */
   BSP_Init();
-//  MX_USART1_UART_Init();
 
   // Setup from mirror the previous states when been system reset
-  BSP_LDC_SetState(BSP_LDC_State());
-  BSP_ELC_SetState(BSP_ELC_State());
+//  BSP_LDC_SetState(BSP_LDC_State());
+//  BSP_ELC_SetState(BSP_ELC_State());
 
   // Reset Converter
   BSP_FBC_SetState(FBC_STATE_STOPPED);
 
-  // Initialize tiny display
-  HAL_Delay(100);
-  SSD1306_Init();
+//  // Initialize tiny display
+//  HAL_Delay(100);
+//  SSD1306_Init();
 
-  // Display checksum if ROM not been patched
-  if (!ROM_CRC32_Assigned())
-  {
-	  int32_t timer; uint32_t oldtick, newtick;
+//  // Display checksum if ROM not been patched
+//  if (!ROM_CRC32_Assigned())
+//  {
+//	  int32_t timer; uint32_t oldtick, newtick;
 
-	  SSD1306_SetPos(0,0);
-	  prints("Debug11s,missingCRC!\nCodeCRC="); printi((int)(ROM_CRC32_code()),11);
-	  prints("\nDataCRC=");						printi((int)(ROM_CRC32_data()),11);
-#ifdef DEBUG
-	  prints("\nSCF= "); printi(HAL_ADCEx_Calibration_GetValue(&hadc1,ADC_SINGLE_ENDED),5);
-	  prints(", "); 	 printi(HAL_ADCEx_Calibration_GetValue(&hadc2,ADC_SINGLE_ENDED),5);
-	  prints("\nDCF= "); printi(HAL_ADCEx_Calibration_GetValue(&hadc1,ADC_DIFFERENTIAL_ENDED),5);
-	  prints(", ");		 printi(HAL_ADCEx_Calibration_GetValue(&hadc2,ADC_DIFFERENTIAL_ENDED),5);
-#else
-	  prints("\nGood lack!");
-#endif
-// Simplest show
-	  timer = 11000; oldtick = HAL_GetTick();
-	 do
-	 {
-	  BSP_ExecuteWatchdogs();
-	  SSD1306_SetPos(5,0);
-#ifdef DEBUG
-	  prints("EVR= ");	printi(HAL_ADCEx_InjectedGetValue(&hadc1,2),5);
-	  prints(", ");		printi(HAL_ADCEx_InjectedGetValue(&hadc2,2),5);
-	  prints("\nVPB= "); printi(VpanConversion,5);
-	  prints(", ");		printi(VbatConversion,5);
-#endif
-	  prints("\nIt remains "); printi(timer/1000,3);prints(" s.");
-	  newtick = HAL_GetTick(); timer -= newtick - oldtick; oldtick = newtick;
-	 }
-	 while(timer > 0);
-  }
-  SSD1306_Clear();
+//	  SSD1306_SetPos(0,0);
+//	  prints("Debug11s,missingCRC!\nCodeCRC="); printi((int)(ROM_CRC32_code()),11);
+//	  prints("\nDataCRC=");						printi((int)(ROM_CRC32_data()),11);
+//#ifdef DEBUG
+//	  prints("\nSCF= "); printi(HAL_ADCEx_Calibration_GetValue(&hadc1,ADC_SINGLE_ENDED),5);
+//	  prints(", "); 	 printi(HAL_ADCEx_Calibration_GetValue(&hadc2,ADC_SINGLE_ENDED),5);
+//	  prints("\nDCF= "); printi(HAL_ADCEx_Calibration_GetValue(&hadc1,ADC_DIFFERENTIAL_ENDED),5);
+//	  prints(", ");		 printi(HAL_ADCEx_Calibration_GetValue(&hadc2,ADC_DIFFERENTIAL_ENDED),5);
+//#else
+//	  prints("\nGood lack!");
+//#endif
+//// Simplest show
+//	  timer = 11000; oldtick = HAL_GetTick();
+//	 do
+//	 {
+//	  BSP_ExecuteWatchdogs();
+//	  SSD1306_SetPos(5,0);
+//#ifdef DEBUG
+//	  prints("EVR= ");	printi(HAL_ADCEx_InjectedGetValue(&hadc1,2),5);
+//	  prints(", ");		printi(HAL_ADCEx_InjectedGetValue(&hadc2,2),5);
+//	  prints("\nVPB= "); printi(VpanConversion,5);
+//	  prints(", ");		printi(VbatConversion,5);
+//#endif
+//	  prints("\nIt remains "); printi(timer/1000,3);prints(" s.");
+//	  newtick = HAL_GetTick(); timer -= newtick - oldtick; oldtick = newtick;
+//	 }
+//	 while(timer > 0);
+//  }
+//  SSD1306_Clear();
 
-  MX_I2C1_SMBUS_Init();
+//  MX_I2C1_SMBUS_Init();
 	
-	eMBErrorCode eStatus;	
-	__disable_irq();		
-  eStatus = eMBInit( MB_RTU, 0x0A, 0, 115200UL, MB_PAR_NONE );
-  eStatus = eMBEnable();
-	__enable_irq();
+//	eMBErrorCode eStatus;	
+//	__disable_irq();		
+//  eStatus = eMBInit( MB_RTU, 0x0A, 0, 115200UL, MB_PAR_NONE );
+//  eStatus = eMBEnable();
+//	__enable_irq();
 
   while (TRUE)
   {
+		ch_state=BSP_FBC_State();
 	  BSP_ExecuteControl();
-	  BSP_ExecuteLEDshow();
+//		ch_state=BSP_FBC_State();
+//	  BSP_ExecuteLEDshow();
 		if(pbChargerEn==0){
 			BSP_ExecuteReadBMS();
 		}
@@ -281,7 +283,7 @@ int main(void)
 			pbChargerFSM();
 		}
 //	  BSP_EcecuteDisplay();
-	  BSP_ExecuteCeremonial();
+//	  BSP_ExecuteCeremonial();
 //	  BSP_ExecuteWatchdogs();
 //		eMBPoll();
   }
@@ -408,53 +410,58 @@ void BSP_ExecuteWatchdogs(void)
 	HAL_IWDG_Refresh(&hiwdg);
 }
 
-enum chStates{
+typedef enum {
 	Initialization=1,
 	Bulk,
 	Absorption,
 	Equalization,
 	Float
-};				
+}chStates;				
 static uint8_t currentState=Initialization;	
 extern TIM_HandleTypeDef htim6;
 extern uint16_t minutesCnt;
+
+uint16_t VbatConversion_volt;
 
 void pbChargerFSM(void)
 {
 	switch(currentState){
 		case Initialization:
-			if(VbatConversion < FBC_VALUE2ADC(FBC_PB_BATTERY_MIN_VOLTAGE,FBC_BATTERY_VOLTAGE_RATIO))
+			if(VbatConversion < FBC_VALUE2ADC(FBC_PB_BATTERY_MIN_VOLTAGE,FBC_BATTERY_VOLTAGE_RATIO)){
+				VbatConversion_volt=FBC_ADC2VALUE(VbatConversion,FBC_BATTERY_VOLTAGE_RATIO);
 				break;
-			else
+			}
+			else{
 				currentState=Bulk;
-			break;
+				break;
+			}
 		case Bulk:
 			BatCurrentLimit = FBC_VALUE2ADC(FBC_PB_BATTERY_BULK_CURRENT,FBC_BATTERY_CURRENT_RATIO);
-			HAL_TIM_Base_Start(&htim6);
+			HAL_TIM_Base_Start_IT(&htim6);
 			if(minutesCnt>=FBC_PB_BULK_TIMEOUT){
-				HAL_TIM_Base_Stop(&htim6);
+				HAL_TIM_Base_Stop_IT(&htim6);
 				minutesCnt=0;
 				currentState=Initialization;
 				return;
 			}
-//			if(VbatConversion>=FBC_VALUE2ADC(FBC_PB_BATTERY_MAX_VOLTAGE,FBC_BATTERY_VOLTAGE_RATIO)){
-//				HAL_TIM_Base_Stop(&htim6);
+			if(VbatConversion>=FBC_VALUE2ADC(FBC_PB_BATTERY_MAX_VOLTAGE,FBC_BATTERY_VOLTAGE_RATIO)){
+//				HAL_TIM_Base_Stop_IT(&htim6);
 //				minutesCnt=0;
 //				currentState=Absorption;
-//				return;
-//			}
+				return;
+			}
 			break;
 		case Absorption:
 			BatVoltageLimit=FBC_VALUE2ADC(FBC_PB_BATTERY_ABSORPTION_VOLTAGE,FBC_BATTERY_CURRENT_RATIO);
-			HAL_TIM_Base_Start(&htim6);
+			HAL_TIM_Base_Start_IT(&htim6);
 			if(minutesCnt>=FBC_PB_ABSORPTION_TIMEOUT){
-				HAL_TIM_Base_Stop(&htim6);
+				HAL_TIM_Base_Stop_IT(&htim6);
 				minutesCnt=0;
 				currentState=Equalization;
 				return;
 			}
 			if(IbatConversion>=FBC_VALUE2ADC(FBC_PB_BATTERY_ABSORPTION_MIN_CURRENT,FBC_BATTERY_VOLTAGE_RATIO)){
-				HAL_TIM_Base_Stop(&htim6);
+				HAL_TIM_Base_Stop_IT(&htim6);
 				minutesCnt=0;
 				currentState=Float;
 				return;
@@ -463,9 +470,9 @@ void pbChargerFSM(void)
 		case Equalization:
 			BatVoltageLimit=FBC_VALUE2ADC(FBC_PB_BATTERY_EQUALIZATION_VOLTAGE,FBC_BATTERY_CURRENT_RATIO);
 			BatCurrentLimit = FBC_VALUE2ADC(FBC_PB_BATTERY_EQUALIZATION_CURRENT,FBC_BATTERY_CURRENT_RATIO);
-			HAL_TIM_Base_Start(&htim6);
+			HAL_TIM_Base_Start_IT(&htim6);
 			if(minutesCnt>=FBC_PB_EQUALIZATION_TIMEOUT){
-				HAL_TIM_Base_Stop(&htim6);
+				HAL_TIM_Base_Stop_IT(&htim6);
 				minutesCnt=0;
 				currentState=Float;
 				return;
@@ -624,6 +631,11 @@ void SystemClock_Config(void)
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_HRTIM1;
   PeriphClkInit.Hrtim1ClockSelection = RCC_HRTIM1CLK_PLLCLK;
   HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
+
+//	PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_HRTIM1|RCC_PERIPHCLK_ADC12;
+//  PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
+//  PeriphClkInit.Hrtim1ClockSelection = RCC_HRTIM1CLK_PLLCLK;
+//	HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
 
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);

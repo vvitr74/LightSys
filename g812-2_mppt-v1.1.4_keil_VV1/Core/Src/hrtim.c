@@ -147,6 +147,7 @@ void HAL_HRTIM_MspPostInit(HRTIM_HandleTypeDef* hhrtim)
   GPIO_InitTypeDef GPIO_InitStruct;
   if(hhrtim->Instance==HRTIM1)
   {
+	
     /**HRTIM1 GPIO Configuration
     PB12     ------> HRTIM1_CHC1
     PB13     ------> HRTIM1_CHC2

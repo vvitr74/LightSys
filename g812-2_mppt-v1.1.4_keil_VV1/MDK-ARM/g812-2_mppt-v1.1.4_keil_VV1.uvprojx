@@ -398,11 +398,6 @@
               <FilePath>../Core/Src/main.c</FilePath>
             </File>
             <File>
-              <FileName>usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/usart.c</FilePath>
-            </File>
-            <File>
               <FileName>stm32f3xx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f3xx_it.c</FilePath>

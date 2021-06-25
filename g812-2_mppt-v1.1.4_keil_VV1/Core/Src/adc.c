@@ -36,7 +36,7 @@
 #include "adc.h"
 
 #include "gpio.h"
-
+#define USE_ADC_SINGLEENDED
 #ifdef USE_ADC_SINGLEENDED
   #define ADC_INPUT_MODE	ADC_SINGLE_ENDED
 #else

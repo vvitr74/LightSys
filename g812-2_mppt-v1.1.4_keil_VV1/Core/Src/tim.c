@@ -40,7 +40,6 @@
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim6;
 
-HAL_StatusTypeDef initStat;
 void MX_TIM6_Init(void)
 {
   TIM_ClockConfigTypeDef sClockSourceConfig;
@@ -49,9 +48,10 @@ void MX_TIM6_Init(void)
 
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = 0xFFFF;	//65535
+	htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim6.Init.Period = 0xFFFF;	
   htim6.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  initStat=HAL_TIM_Base_Init(&htim6);
+  HAL_TIM_Base_Init(&htim6);
 
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
   HAL_TIM_ConfigClockSource(&htim6, &sClockSourceConfig);
@@ -121,6 +121,14 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 
     HAL_NVIC_SetPriority(TIM3_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(TIM3_IRQn);
+  }
+	if(htim_base->Instance==TIM6)
+  {
+    /* Peripheral clock enable */
+    __TIM6_CLK_ENABLE();
+  
+    HAL_NVIC_SetPriority(TIM6_DAC1_IRQn, 2, 0);
+		HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
   }
 }
 

@@ -37,6 +37,9 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
+#include "stm32f3xx_hal_tim.h"
+#include "stm32f3xx_hal_smbus.h"
+#include "stm32f3xx_hal_crc.h"
 #include "stm32f3xx.h"
 #include "stm32f3xx_it.h"
 #include "bsp.h"
@@ -64,6 +67,8 @@ extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim6;
 extern SMBUS_HandleTypeDef hsmbus1;
 
+extern BSP_FBCState_TypeDef ch_state;
+
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -86,6 +91,9 @@ void SysTick_Handler(void)
 /**
 * @brief This function handles ADC1 and ADC2 interrupts.
 */
+
+uint32_t adc_data=0;
+uint32_t adc_volt=0;
 void ADC1_2_IRQHandler(void)
 {
 	if (__HAL_ADC_GET_FLAG(&hadc1,ADC_FLAG_JEOS) &&
@@ -93,6 +101,10 @@ void ADC1_2_IRQHandler(void)
 	{
 	  __HAL_ADC_CLEAR_FLAG(&hadc2, ADC_FLAG_JEOS);
 	  __HAL_ADC_CLEAR_FLAG(&hadc1, ADC_FLAG_JEOS);
+		
+		adc_data=hadc1.Instance->JDR3;
+		adc_volt=FBC_ADC2VALUE(adc_data, FBC_PANEL_VOLTAGE_RATIO);
+//		adc_volt=FBC_ADC2VALUE(adc_data, 1);
 
 	  vpanaverage += hadc1.Instance->JDR1;
 	  ref1average += hadc1.Instance->JDR2;
@@ -128,9 +140,10 @@ void ADC1_2_IRQHandler(void)
 void HRTIM1_Master_IRQHandler(void)
 {
 // Accelerate the calculation of loop back.
-  if (__HAL_HRTIM_MASTER_GET_FLAG(&hhrtim1, HRTIM_MASTER_FLAG_MREP) != RESET &&
-	  __HAL_HRTIM_MASTER_GET_ITSTATUS(&hhrtim1, HRTIM_MASTER_IT_MREP) != RESET)
+  if (__HAL_HRTIM_MASTER_GET_FLAG(&hhrtim1, HRTIM_MASTER_FLAG_MREP) != RESET &&	//HRTIM_MASTER_FLAG_MREP - Master Repetition interrupt flag (bit MREP in MISR)
+	  __HAL_HRTIM_MASTER_GET_ITSTATUS(&hhrtim1, HRTIM_MASTER_IT_MREP) != RESET)		//HRTIM_MASTER_IT_MREP - Master Repetition interrupt enable 
    {
+		 
 	int16_t vpan, ipan, vbat, ibat
 #ifdef USE_ADDITIONAL_VOLTAGE_REFERENCE
 	, ref1, ref2
@@ -145,7 +158,7 @@ void HRTIM1_Master_IRQHandler(void)
 	else
 	{
 	/* Begin of critical section, disable preemption */
-//	__disable_fault_irq();	//VV 09.06.21
+//	__disable_fault_irq();
 	__disable_irq();
 	vpan = VpanConversion;    vbat = VbatConversion;
 	ipan = IpanConversion;    ibat = IbatConversion;
@@ -153,7 +166,7 @@ void HRTIM1_Master_IRQHandler(void)
 	ref1 = Ref1Conversion;    ref2 = Ref2Conversion;
 #endif
 	/* End of critical section, enable preemption*/
-//	__enable_fault_irq();	//VV 09.06.21
+//	__enable_fault_irq();	
 	__enable_irq();
 
 
@@ -208,8 +221,11 @@ void HRTIM1_Master_IRQHandler(void)
 										 FBC_PANEL_VOLTAGE_RATIO);
 		/* Waiting when transient to be ended */
 		if (OverloadTimeout) OverloadTimeout--;
-		else
+		else{
+			ch_state=BSP_FBC_State();	//for debug
 			BSP_FBC_SetState(FBC_STATE_STOPPED);
+			ch_state=BSP_FBC_State();	//for debug
+		}
 		PowerLimitation = BSP_REGULATIONS_TIMEOUT(FBC_POWER_LIMITATION_FLARE);
 	}
 	else
@@ -222,16 +238,17 @@ void HRTIM1_Master_IRQHandler(void)
 		  PanelVoltageMPPT = FBC_VALUE2ADC(FBC_START_PANEL_VOLTAGE,
 		  								   FBC_PANEL_VOLTAGE_RATIO);
 		  /* Waiting when transient to be ended */
-		  if (StoppingTimeout) StoppingTimeout--;
-		  else
-		   	  BSP_FBC_SetState(FBC_STATE_STOPPED);
-	    }
+				if (StoppingTimeout) StoppingTimeout--;
+				else
+						BSP_FBC_SetState(FBC_STATE_STOPPED);
+				}
 	    else
 	    {
 	  	  StoppingTimeout = BSP_REGULATIONS_TIMEOUT(FBC_STOPPING_TRANSIENT_TIME);
-	 	  if (vpan > PanelVoltageMPPT) BridgeGearNumber++;
-	 	  	  	  	  	  	  	  else
-	 	  	  	  	  	  	  		   BridgeGearNumber--;
+	 	  if (vpan > PanelVoltageMPPT) 
+				BridgeGearNumber++;
+			else
+				BridgeGearNumber--;
 	    }
 	  }
 
@@ -281,8 +298,12 @@ uint16_t minutesCnt;
 
 void TIM6_DAC1_IRQHandler(void)
 {
-  minutesCnt++;
-	HAL_TIM_IRQHandler(&htim6);
+	if(__HAL_TIM_GET_FLAG(&htim6,TIM_SR_UIF)){
+		__HAL_TIM_CLEAR_FLAG(&htim6,TIM_SR_UIF);
+		minutesCnt++;
+	}
+	else
+		HAL_TIM_IRQHandler(&htim6);
 }
 
 

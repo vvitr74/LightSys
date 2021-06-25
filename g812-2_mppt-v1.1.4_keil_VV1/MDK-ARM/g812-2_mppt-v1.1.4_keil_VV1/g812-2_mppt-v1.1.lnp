@@ -1,7 +1,6 @@
 --cpu=Cortex-M4.fp
 "g812-2_mppt-v1.1.4_keil_vv1\startup_stm32f334x8.o"
 "g812-2_mppt-v1.1.4_keil_vv1\main.o"
-"g812-2_mppt-v1.1.4_keil_vv1\usart.o"
 "g812-2_mppt-v1.1.4_keil_vv1\stm32f3xx_it.o"
 "g812-2_mppt-v1.1.4_keil_vv1\stm32f3xx_hal_msp.o"
 "g812-2_mppt-v1.1.4_keil_vv1\gpio.o"
@@ -48,7 +47,7 @@
 "g812-2_mppt-v1.1.4_keil_vv1\mbfuncinput.o"
 "g812-2_mppt-v1.1.4_keil_vv1\mbfuncother.o"
 "g812-2_mppt-v1.1.4_keil_vv1\mbrtu.o"
-"g812-2_mppt-v1.1.4_keil_vv1\mbrtu_var.o"
+"g812-2_mppt-v1.1.4_keil_vv1\mbrtu_var_1.o"
 "g812-2_mppt-v1.1.4_keil_vv1\mbtcp.o"
 "g812-2_mppt-v1.1.4_keil_vv1\mbutils.o"
 "g812-2_mppt-v1.1.4_keil_vv1\portevent.o"

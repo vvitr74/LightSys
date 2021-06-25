@@ -23,6 +23,7 @@
 #undef USE_HSE_RESONATOR
 #endif
 
+#define USE_HSE_RESONATOR
 #ifdef USE_HSE_RESONATOR
 #define SYSTEM_CORE_CLOCK  72000000		/*[Hz]*/
 #else

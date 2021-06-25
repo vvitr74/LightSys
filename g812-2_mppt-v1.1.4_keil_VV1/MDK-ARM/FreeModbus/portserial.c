@@ -74,6 +74,17 @@ void vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
 //	GPIOC->BSRR = GPIO_BSRR_BR_12;	
 //}
 
+//void check_txd_RS485(void)
+//{
+//    if ( USART3->ISR & USART_ISR_TC_Msk )
+//    {
+//			txd_RS485_DIS();
+//    }
+//    
+//    MB_CopyStructToDiscreteInputs();
+//    MB_CopyStructToInputRegs();
+//}
+
 BOOL xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBParity eParity )
 {
 //	RCC->APB1ENR |= RCC_APB1ENR_USART1EN;	
@@ -119,7 +130,7 @@ BOOL xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBPar
 ////	USART1->BRR = USART1_PCLK/ulBaudRate;	
 //	USART1->BRR = 312;//625;
 
-	MX_USART1_UART_Init();
+//	MX_USART1_UART_Init();
 
 
 //	switch ( eParity )
