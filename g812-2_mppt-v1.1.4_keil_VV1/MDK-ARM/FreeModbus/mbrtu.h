@@ -33,6 +33,15 @@
 #ifdef __cplusplus
 PR_BEGIN_EXTERN_C
 #endif
+
+#define MB_SER_PDU_SIZE_MIN     4       /*!< Minimum size of a Modbus RTU frame. */
+#define MB_SER_PDU_SIZE_MAX     256     /*!< Maximum size of a Modbus RTU frame. */
+#define MB_SER_PDU_SIZE_CRC     2       /*!< Size of CRC field in PDU. */
+#define MB_SER_PDU_ADDR_OFF     0       /*!< Offset of slave address in Ser-PDU. */
+#define MB_SER_PDU_PDU_OFF      1       /*!< Offset of Modbus-PDU in Ser-PDU. */
+
+#define SETTINGS_PAGE 0x0800F000
+
     eMBErrorCode eMBRTUInit( UCHAR slaveAddress, UCHAR ucPort, ULONG ulBaudRate,
                              eMBParity eParity );
 void            eMBRTUStart( void );

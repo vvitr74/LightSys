@@ -1,4 +1,4 @@
-g812-2_mppt-v1.1.4_keil_vv1\usart.o: ../Core/Src/usart.c
+g812-2_mppt-v1.1.4_keil_vv1\usart.o: ..\Core\Src\usart.c
 g812-2_mppt-v1.1.4_keil_vv1\usart.o: ../Core/Inc/usart.h
 g812-2_mppt-v1.1.4_keil_vv1\usart.o: ../Core/Inc/main.h
 g812-2_mppt-v1.1.4_keil_vv1\usart.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h

@@ -80,8 +80,9 @@ BOOL            xMBPortSerialGetByte( CHAR * pucByte );
 
 BOOL            xMBPortSerialPutByte( CHAR ucByte );
 
-void 						txd_RS485_EN(void);
-void 						txd_RS485_DIS(void);
+//void 						txd_RS485_EN(void);
+//void 						txd_RS485_DIS(void);
+//void flashWrite(uint32_t addr);
 
 /* ----------------------- Timers functions ---------------------------------*/
 BOOL            xMBPortTimersInit( USHORT usTimeOut50us );

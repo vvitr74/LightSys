@@ -46,10 +46,10 @@
 #include "bsp.h"
 #include "smbus.h"
 #include "print.h"
-//#include "usart.h"
-//#include "mb.h"
-//#include "mbport.h"
-//#include "conf_struct.h"
+#include "usart.h"
+#include "mb.h"
+#include "mbport.h"
+#include "conf_struct_rom.h"
 //#include "pb_charger.h"
 
 // Understand without comments
@@ -63,7 +63,7 @@
 // Helpers
 #define BOOLEAN		uint8_t
 #define FALSE		0
-#define TRUE		!FALSE
+//#define TRUE		!FALSE
 
 // Predicates
 #define MORNING_DETECTED	  SunlightTrigger()
@@ -437,6 +437,7 @@ void pbChargerFSM(void)
 			}
 		case Bulk:
 			BatCurrentLimit = FBC_VALUE2ADC(FBC_PB_BATTERY_BULK_CURRENT,FBC_BATTERY_CURRENT_RATIO);
+//			BatVoltageLimit=FBC_VALUE2ADC(FBC_PB_CHARGER_BULK_VOLTAGE,FBC_BATTERY_CURRENT_RATIO);
 			HAL_TIM_Base_Start_IT(&htim6);
 			if(minutesCnt>=FBC_PB_BULK_TIMEOUT){
 				HAL_TIM_Base_Stop_IT(&htim6);
@@ -453,6 +454,7 @@ void pbChargerFSM(void)
 			break;
 		case Absorption:
 			BatVoltageLimit=FBC_VALUE2ADC(FBC_PB_BATTERY_ABSORPTION_VOLTAGE,FBC_BATTERY_CURRENT_RATIO);
+			BatCurrentLimit = FBC_VALUE2ADC(FBC_PB_BATTERY_BULK_CURRENT,FBC_BATTERY_CURRENT_RATIO);
 			HAL_TIM_Base_Start_IT(&htim6);
 			if(minutesCnt>=FBC_PB_ABSORPTION_TIMEOUT){
 				HAL_TIM_Base_Stop_IT(&htim6);

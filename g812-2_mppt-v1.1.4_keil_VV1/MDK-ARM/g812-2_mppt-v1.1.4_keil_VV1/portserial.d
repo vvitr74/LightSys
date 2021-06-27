@@ -48,3 +48,4 @@ g812-2_mppt-v1.1.4_keil_vv1\portserial.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/st
 g812-2_mppt-v1.1.4_keil_vv1\portserial.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_usart_ex.h
 g812-2_mppt-v1.1.4_keil_vv1\portserial.o: ../Core/Inc/usart.h
 g812-2_mppt-v1.1.4_keil_vv1\portserial.o: ../Core/Inc/main.h
+g812-2_mppt-v1.1.4_keil_vv1\portserial.o: FreeModbus\mbrtu.h

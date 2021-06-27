@@ -448,9 +448,14 @@
               <FilePath>..\Core\Src\print.c</FilePath>
             </File>
             <File>
-              <FileName>conf_sruct.c</FileName>
+              <FileName>usart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\Src\conf_sruct.c</FilePath>
+              <FilePath>..\Core\Src\usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>conf_sruct_rom.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\conf_sruct_rom.c</FilePath>
             </File>
           </Files>
         </Group>

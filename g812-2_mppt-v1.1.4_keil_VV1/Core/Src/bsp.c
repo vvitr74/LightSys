@@ -17,7 +17,7 @@
 #include "tim.h"
 #include "gpio.h"
 #include "bsp.h"
-#include "pb_charger.h"
+//#include "pb_charger.h"
 
 //const uint16_t conf[50];
 
@@ -294,10 +294,10 @@ BSP_FBCState_TypeDef  BSP_FBC_State(void)
 
 
 /* Calculation duty cycle parameters */
-#define DELTA   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DELTA)	//209454,545454545*(5/100)=10472,7272727273=0x28E8
-#define DUTY1   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DUTY1)	//209454,545454545*(80/100)=167563,636363636=0x028E8B
-#define DUTY2   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DUTY2)	//209454,545454545*(50/100)=104727,272727273=0x019917
-#define ONE     FBC_BUCKBOOST_PERIOD													//209454,545454545=0x03322E
+#define DELTA   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DELTA)	//209454*(5/100)=10472=0x28E8
+#define DUTY1   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DUTY1)	//209454*(80/100)=167563=0x028E8B
+#define DUTY2   (FBC_BUCKBOOST_PERIOD * FBC_BUCKBOOST_DUTY2)	//209454*(50/100)=104727=0x019917
+#define ONE     FBC_BUCKBOOST_PERIOD													//209454=0x03322E
 #define SCALE   FBC_FRACTIONS_SCALE														//10000=0x2710
 
 void BSP_FBC_CutGearNumber(void)
@@ -316,9 +316,11 @@ void BSP_FBC_SetGearNumber(void)
                                                   2*ONE-2*DELTA-SCALE*(ONE-DELTA)/k;
 }
 
+uint32_t gear, buck, boost, buckboost, buckend, adcpos;
+
 void BSP_FBC_SetDutyCycles(void)
 {
-    uint32_t gear, buck, boost, buckboost, buckend, adcpos;
+//    uint32_t gear, buck, boost, buckboost, buckend, adcpos;
 
     gear = BridgeGearNumber;
 
@@ -343,8 +345,8 @@ void BSP_FBC_SetDutyCycles(void)
 //     __disable_fault_irq(); //VV 09.06.21
 		__disable_irq();
      hhrtim1.Instance->sMasterRegs.MCMP1R = adcpos;
-     hhrtim1.Instance->sTimerxRegs[HRTIM_TIMERINDEX_TIMER_A].CMP1xR = buck;
-     hhrtim1.Instance->sTimerxRegs[HRTIM_TIMERINDEX_TIMER_C].CMP1xR = boost;
+     hhrtim1.Instance->sTimerxRegs[HRTIM_TIMERINDEX_TIMER_A].CMP1xR = buck;		//Q1, Q3
+     hhrtim1.Instance->sTimerxRegs[HRTIM_TIMERINDEX_TIMER_C].CMP1xR = boost;	//Q2, Q4
      /* End of critical section, enable preemption*/
 //     __enable_fault_irq();	//VV 09.06.21
 		__enable_irq();

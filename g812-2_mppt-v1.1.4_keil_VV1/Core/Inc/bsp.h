@@ -16,7 +16,7 @@
 
 #include "stm32f3xx_hal.h"
 //#include "config.h"
-#include "conf_struct.h"
+#include "conf_struct_rom.h"
 
 
 #ifdef NUCLEO_F334R8

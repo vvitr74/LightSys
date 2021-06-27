@@ -43,11 +43,11 @@
 #include "mbport.h"
 
 /* ----------------------- Defines ------------------------------------------*/
-#define MB_SER_PDU_SIZE_MIN     4       /*!< Minimum size of a Modbus RTU frame. */
-#define MB_SER_PDU_SIZE_MAX     256     /*!< Maximum size of a Modbus RTU frame. */
-#define MB_SER_PDU_SIZE_CRC     2       /*!< Size of CRC field in PDU. */
-#define MB_SER_PDU_ADDR_OFF     0       /*!< Offset of slave address in Ser-PDU. */
-#define MB_SER_PDU_PDU_OFF      1       /*!< Offset of Modbus-PDU in Ser-PDU. */
+//#define MB_SER_PDU_SIZE_MIN     4       /*!< Minimum size of a Modbus RTU frame. */
+//#define MB_SER_PDU_SIZE_MAX     256     /*!< Maximum size of a Modbus RTU frame. */
+//#define MB_SER_PDU_SIZE_CRC     2       /*!< Size of CRC field in PDU. */
+//#define MB_SER_PDU_ADDR_OFF     0       /*!< Offset of slave address in Ser-PDU. */
+//#define MB_SER_PDU_PDU_OFF      1       /*!< Offset of Modbus-PDU in Ser-PDU. */
 
 /* ----------------------- Type definitions ---------------------------------*/
 typedef enum
@@ -283,6 +283,8 @@ xMBRTUReceiveFSM( void )
     return xTaskNeedSwitch;
 }
 
+uint8_t flashWrEn;
+
 BOOL
 xMBRTUTransmitFSM( void )
 {
@@ -313,6 +315,7 @@ xMBRTUTransmitFSM( void )
             /* Disable transmitter. This prevents another transmit buffer
              * empty interrupt. */
             vMBPortSerialEnable( TRUE, FALSE );
+						flashWrEn=1;
             eSndState = STATE_TX_IDLE;
 //						txd_RS485_DIS();
         }

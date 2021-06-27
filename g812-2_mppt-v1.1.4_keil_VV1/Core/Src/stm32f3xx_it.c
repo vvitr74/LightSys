@@ -238,10 +238,11 @@ void HRTIM1_Master_IRQHandler(void)
 		  PanelVoltageMPPT = FBC_VALUE2ADC(FBC_START_PANEL_VOLTAGE,
 		  								   FBC_PANEL_VOLTAGE_RATIO);
 		  /* Waiting when transient to be ended */
-				if (StoppingTimeout) StoppingTimeout--;
+				if (StoppingTimeout) 
+					StoppingTimeout--;
 				else
-						BSP_FBC_SetState(FBC_STATE_STOPPED);
-				}
+					BSP_FBC_SetState(FBC_STATE_STOPPED);
+			}
 	    else
 	    {
 	  	  StoppingTimeout = BSP_REGULATIONS_TIMEOUT(FBC_STOPPING_TRANSIENT_TIME);
